@@ -49,7 +49,7 @@ read access). The observer sends only GET requests.
 - **Hashes, not content.** A body edited to a different text is detected through its hash. Nothing
   here shows or stores the text.
 - **One run per scenario**, one platform, one repository.
-- The attestation is created but **I have not yet verified it with `gh attestation verify`**.
+- The attestation is created. For the extra-effect run, the digest of report.json shown on GitHub's attestation page matches the file's SHA-256. The full signature chain has not yet been verified with gh attestation verify.
 - Related work: EffectMatch (arXiv 2609.31301) and Schrock's IETF drafts cover post-execution
   effect comparison and the in-bounds / divergent / indeterminate vocabulary. No novelty is
   claimed for those ideas. The contribution is a small, reproducible live check on GitHub.
