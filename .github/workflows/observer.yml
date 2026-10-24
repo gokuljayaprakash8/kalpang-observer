@@ -1,0 +1,58 @@
+name: EB004 observer
+# Read-only observer of another repository's issues and issue comments.
+# Start this first, then run the executor workflow in the probe repo with the same scenario and run_id.
+on:
+  workflow_dispatch:
+    inputs:
+      scenario: {description: "Scenario name, exactly as given to the executor workflow", required: true}
+      run_id: {description: "Run id, exactly as given to the executor workflow", required: true}
+      expect: {description: "Expected verdict (IN-BOUNDS or DIVERGENT), optional", required: false}
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      OBS_TOKEN: ${{ secrets.OBS_TOKEN }}
+      OBS_REPO: ${{ vars.OBS_REPO }}
+      SCENARIO: ${{ inputs.scenario }}
+      RUN_ID: ${{ inputs.run_id }}
+      EXPECT: ${{ inputs.expect }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baseline snapshot
+        run: python3 -I observer/run_probe.py snapshot --out before.json
+      - name: Wait for the executor run (start it in the probe repo now)
+        run: python3 -I observer/run_probe.py wait-run --scenario "$SCENARIO" --run-id "$RUN_ID" --timeout 1500 --out wait.json
+      - name: Let GitHub's views settle
+        run: sleep 30
+      - name: After snapshot
+        run: python3 -I observer/run_probe.py snapshot --out after.json
+      - name: Classify
+        run: |
+          if [ -n "$EXPECT" ]; then E="--expect $EXPECT"; else E=""; fi
+          python3 -I observer/run_probe.py classify --before before.json --after after.json --scenario "$SCENARIO" --run-id "$RUN_ID" $E --out report.json
+      - name: Manifest
+        run: python3 -I observer/run_probe.py manifest --out manifest.json before.json after.json wait.json report.json
+      - name: Verify manifest
+        run: python3 -I observer/verify_manifest.py manifest.json .
+      - uses: actions/attest@v4
+        with:
+          subject-path: |
+            before.json
+            after.json
+            report.json
+            manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eb004-${{ inputs.run_id }}
+          path: |
+            before.json
+            after.json
+            wait.json
+            report.json
+            manifest.json
+            
