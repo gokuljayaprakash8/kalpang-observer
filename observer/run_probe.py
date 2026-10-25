@@ -169,6 +169,54 @@ def classify(before, after, scenario, run_id, expect=None):
     return finish(out, expect)
 
 
+def _diff(before, after):
+    bi = {i["id"]: i for i in before["core"]["issues"]}; bc = {c["id"]: c for c in before["core"]["comments"]}
+    ai = {i["id"] for i in after["core"]["issues"]}
+    return {"new_issues": [i for i in after["core"]["issues"] if i["id"] not in bi],
+            "new_comments": [c for c in after["core"]["comments"] if c["id"] not in bc],
+            "changed": [i["number"] for i in after["core"]["issues"] if i["id"] in bi and bi[i["id"]] != i]
+                       + [("comment", c["id"]) for c in after["core"]["comments"] if c["id"] in bc and bc[c["id"]] != c],
+            "removed": [i for i in bi if i not in ai]}
+
+
+def classify_chain(before, after, run_id, admission, expect=None):
+    """Experiment 005: compare observed effects with what a delegation-chain gateway admitted."""
+    out = {"run_id": run_id, "boundary": BOUNDARY}
+    if not (before.get("stable") and after.get("stable")):
+        out.update(effect_verdict="INDETERMINATE", reason=before.get("reason") or after.get("reason") or "SNAPSHOT_UNSTABLE")
+        return finish(out, expect)
+    if admission is not None and admission.get("run_id") != run_id:
+        out.update(effect_verdict="INDETERMINATE", reason="ADMISSION_RUN_MISMATCH"); return finish(out, expect)
+    view = "NONE" if admission is None else ("ADMITTED" if admission["admitted"] else "REJECTED")
+    d = _diff(before, after); changed = any(d.values())
+    out["admission_view"] = view
+    out["admission_only_says"] = {"NONE": "NO RECORD", "ADMITTED": "PASS", "REJECTED": "BLOCKED"}[view]
+    if view != "ADMITTED":
+        if changed:
+            out.update(effect_verdict="DIVERGENT", reason="UNADMITTED_EFFECT" if view == "NONE" else "EFFECT_DESPITE_REJECTION")
+        else:
+            out.update(effect_verdict="IN-BOUNDS", reason="NO_EFFECT_AS_REQUIRED")
+    else:
+        auth = admission["authorized_effect"]
+        target = [i for i in d["new_issues"] if i["title"] == auth["title"]]
+        match = len(target) == 1 and target[0]["body_sha256"] == auth["body_sha256"]
+        extras = [i for i in d["new_issues"] if i not in target]
+        if match and not extras and not d["new_comments"] and not d["changed"] and not d["removed"]:
+            out.update(effect_verdict="IN-BOUNDS", reason="EXACTLY_THE_ADMITTED_EFFECT")
+        elif not changed:
+            out.update(effect_verdict="NO OBSERVED EFFECT", reason="ADMITTED_BUT_NOTHING_HAPPENED")
+        else:
+            out.update(effect_verdict="DIVERGENT", reason="TARGET_MISMATCH" if not match else "EXTRA_EFFECT")
+        out["target_only_view"] = "TARGET_MATCH" if match else "TARGET_MISMATCH"
+    v = out["effect_verdict"]
+    out["unapproved"] = {"new_issues": [{"number": i["number"], "title": i["title"]} for i in d["new_issues"]
+                                        if view != "ADMITTED" or i["title"] != admission["authorized_effect"]["title"]],
+                         "new_comments": [c["id"] for c in d["new_comments"]], "changed": d["changed"], "removed": d["removed"]}
+    out["observer_disagrees_with_admission"] = (view == "ADMITTED" and v != "IN-BOUNDS") or (view != "ADMITTED" and v == "DIVERGENT")
+    out["completeness"] = "complete within declared boundary only"
+    return finish(out, expect)
+
+
 def finish(out, expect):
     if expect:
         out["harness_expectation_met"] = (out["effect_verdict"] == expect)
@@ -215,6 +263,9 @@ def main(argv=None):
     for a_ in ("--scenario", "--run-id", "--out"): w.add_argument(a_, required=True)
     w.add_argument("--timeout", type=int, default=1200)
     m = sub.add_parser("manifest"); m.add_argument("--out", required=True); m.add_argument("files", nargs="+")
+    cc = sub.add_parser("classify-chain")
+    for a_ in ("--before", "--after", "--run-id", "--admission", "--out"): cc.add_argument(a_, required=True)
+    cc.add_argument("--expect")
     c = sub.add_parser("classify")
     for a in ("--before", "--after", "--scenario", "--run-id", "--out"): c.add_argument(a, required=True)
     c.add_argument("--expect")
@@ -227,6 +278,10 @@ def main(argv=None):
     elif a.cmd == "wait-run":
         res = wait_run(os.environ.get("OBS_API", "https://api.github.com"), os.environ["OBS_REPO"], os.environ["OBS_TOKEN"], a.scenario, a.run_id, a.timeout)
         code = 0 if res.get("found") else 2
+    elif a.cmd == "classify-chain":
+        adm = None if a.admission == "none" else json.load(open(a.admission))
+        res = classify_chain(json.load(open(a.before)), json.load(open(a.after)), a.run_id, adm, a.expect)
+        code = 0 if res.get("harness_expectation_met", True) else 1
     elif a.cmd == "manifest":
         write_manifest(a.files, a.out); print("manifest written"); return 0
     else:
