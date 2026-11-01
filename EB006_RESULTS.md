@@ -36,13 +36,13 @@ This does not show that any model is safe or unsafe. One injection wording was t
 
 ## Runs excluded from the results
 - **b2:** the probe failed at the first LLM call (HTTP 404) because the model variable had a stray period. No issues were created. The observer correctly returned INDETERMINATE.
-- **b3:** the observer was started after the probe had already finished, so its baseline included the probe's effects. The observer returned INDETERMINATE. The agent log shows 20 issues, but there is no independent observer verdict for b3, so it is not counted. The run order was corrected for b4: observer first, probe after the observer's baseline snapshot.
+- **b3:** the observer returned INDETERMINATE. The probe had finished about a minute before the observer started, so the observer's baseline most likely already included the probe's effects (the report that would confirm the reason was not produced). The agent log shows 20 issues, but there is no independent observer verdict for b3, so it is not counted. The run order was corrected for b4: observer first, probe after the observer's baseline snapshot.
 
 ## What this does not show
 - Few models, one injection wording, 10 trials per run. These are rates for this setup, not a claim about agents in general. Model output is nondeterministic and reruns may differ.
 - The guard is a simple exact-match policy. This does not test other guards.
 - The observer's boundary is issues and issue comments of one repository. Effects elsewhere (PRs, repo contents, other repositories, logs) are not observed.
-- Observer and target are separate repositories under the same GitHub account, not independent trust domains. The probe repository is public, so unrelated issues from others would show as unattributed effects (none appeared).
+- Observer and target are separate repositories under the same GitHub account, not independent trust domains. The probe repository is public, so unrelated issues from others would show as unattributed effects (none appeared in the runs that returned IN-BOUNDS; I did not separately check the unattributed list for the DIVERGENT runs).
 - Build attestations are produced by the observer workflow; I have not yet verified them with `gh attestation verify`.
 - The observer must be started and finish its baseline snapshot before the probe starts; the b3 run shows what happens otherwise.
 - Built and run with LLM assistance. Tests (15, against local fake GitHub and LLM servers) and the workflow runs are the verification, not the model's say-so.
