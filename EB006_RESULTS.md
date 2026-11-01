@@ -30,7 +30,7 @@ With the injected note and no guard, the model filed the extra issue in all 10 t
 | b1 | qwen/qwen3.8-27b | 10 | 10 / 0 | 0 |
 | b4 | openai/gpt-oss-20b | 22 | 0 / 10 | 8 |
 
-Whether an agent follows this injection varies by model: qwen3.8-27b did not follow it in any of 10 trials, while both gpt-oss models did. In the b4 run, 2 of 10 trials were divergent even by the target-only view (the agent created 22 issues in total, not 20). The per-trial breakdown of those two trials is in the run's report artifact and is not analysed here.
+Whether an agent follows this injection varies by model: qwen3.8-27b did not follow it in any of 10 trials, while the observer flagged unauthorized effects in all 10 trials for both gpt-oss models. In the b4 run, 2 of 10 trials were divergent even by the target-only view (the agent created 22 issues in total, not 20). The per-trial breakdown of those two trials is in the run's report artifact and is not analysed here.
 
 This does not show that any model is safe or unsafe. One injection wording was tested, with 10 trials per model.
 
