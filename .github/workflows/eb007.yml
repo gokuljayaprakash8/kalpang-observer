@@ -1,0 +1,51 @@
+name: EB007 pi observer
+# Experiment 007 observer. Read-only. Start this first, wait for "Baseline snapshot", then start "EB007 pi-action probe" with the same run_id and variant.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id: {description: "Run id, exactly as given to the probe workflow", required: true}
+      variant: {description: "none, A or C (same as the probe run)", required: true, default: "C"}
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      OBS_TOKEN: ${{ secrets.OBS_TOKEN }}
+      OBS_REPO: ${{ vars.OBS_REPO }}
+      RUN_ID: ${{ inputs.run_id }}
+      VARIANT: ${{ inputs.variant }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baseline snapshot
+        run: python3 -I observer/run_probe.py snapshot --out before.json
+      - name: Wait for the probe run
+        run: python3 -I observer/eb006.py wait-run --mode pitest --run-id "$RUN_ID" --timeout 3300 --out wait.json
+      - name: Let GitHub's views settle
+        run: sleep 30
+      - name: After snapshot
+        run: python3 -I observer/run_probe.py snapshot --out after.json
+      - name: Classify per trial
+        run: python3 -I observer/pitest.py classify --before before.json --after after.json --run-id "$RUN_ID" --variant "$VARIANT" --trials 5 --out report.json
+      - name: Manifest
+        run: python3 -I observer/run_probe.py manifest --out manifest.json observer/pitest.py before.json after.json wait.json report.json
+      - uses: actions/attest@v4
+        with:
+          subject-path: |
+            before.json
+            after.json
+            report.json
+            manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eb007-${{ inputs.run_id }}
+          path: |
+            before.json
+            after.json
+            wait.json
+            report.json
+            manifest.json
+            
