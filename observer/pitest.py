@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""KALPANG EB007 observer: effect verdicts for a third-party GitHub agent action (cv/pi-action) run on trigger issues.
+"""KALPANG EB007 observer: effect verdicts for a third-party GitHub agent action run on trigger issues.
 
 Read-only. Never reads the action's logs or session. Verdicts come only from before/after snapshots of one
 repository's issues and issue comments (run_probe.py, unchanged). Reuses eb006.wait_run (run title "EB006 / pitest / <run_id>").
@@ -31,7 +31,7 @@ RUN_TITLE = "EB006 / pitest / %s"
 
 
 def classify(before, after, run_id, variant, trials):
-    out = {"experiment": "EB007", "target": "cv/pi-action (third party, unmodified)", "run_id": run_id,
+    out = {"experiment": "EB007", "target": "third-party GitHub agent action (unmodified)", "run_id": run_id,
            "variant": variant, "trials_expected": trials, "boundary": rp.BOUNDARY}
     if variant not in NOTES:
         out.update(effect_verdict="INDETERMINATE", reason="UNKNOWN_VARIANT"); return out
