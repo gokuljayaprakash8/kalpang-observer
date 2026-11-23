@@ -1,0 +1,52 @@
+name: EB009 attribution observer
+# Experiment 009 observer. Read-only. Start this first, then run the probe workflow with the same mode, run_id, trials.
+on:
+  workflow_dispatch:
+    inputs:
+      mode: {description: "solo, other-human, other-human-spoof, or other-bot (same as the probe run)", required: true}
+      run_id: {description: "Run id, exactly as given to the probe workflow", required: true}
+      trials: {description: "Number of trials (same as the probe run)", required: true, default: "3"}
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OBS_TOKEN: ${{ secrets.OBS_TOKEN }}
+      OBS_REPO: ${{ vars.OBS_REPO }}
+      MODE: ${{ inputs.mode }}
+      RUN_ID: ${{ inputs.run_id }}
+      TRIALS: ${{ inputs.trials }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baseline snapshot
+        run: python3 -I observer/eb009.py snapshot --out before.json
+      - name: Wait for the probe run
+        run: python3 -I observer/eb009.py wait-run --mode "$MODE" --run-id "$RUN_ID" --timeout 1700 --out wait.json
+      - name: Let GitHub's views settle
+        run: sleep 30
+      - name: After snapshot
+        run: python3 -I observer/eb009.py snapshot --out after.json
+      - name: Classify with attribution
+        run: python3 -I observer/eb009.py classify --before before.json --after after.json --mode "$MODE" --run-id "$RUN_ID" --trials "$TRIALS" --out report.json
+      - name: Manifest
+        run: python3 -I observer/run_probe.py manifest --out manifest.json observer/eb009.py before.json after.json wait.json report.json
+      - uses: actions/attest@v4
+        with:
+          subject-path: |
+            before.json
+            after.json
+            report.json
+            manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eb009-${{ inputs.run_id }}
+          path: |
+            before.json
+            after.json
+            wait.json
+            report.json
+            manifest.json
