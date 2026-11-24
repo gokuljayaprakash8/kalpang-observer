@@ -2,8 +2,8 @@
 """KALPANG EB010 observer: does a separately authenticated agent identity fix the EB009 ambiguity? Read-only.
 
 EB009 ran the agent as github-actions[bot], the same identity a second job in the workflow could use, so
-attribution was INDETERMINATE there. EB010 runs the agent under its OWN GitHub account (a personal access token
-of a separate account) and puts the bystander either on a different identity (the platform token) or on the SAME
+attribution was INDETERMINATE there. EB010 runs the agent with its OWN token (a personal access token of the
+repository owner's account) and puts the bystander either on a different identity (the platform token) or on the SAME
 identity as the agent. The agent identity is a declared input (--agent); the observer cannot verify that the
 declared login is the agent. It never reads the agent's own log. It does not edit run_probe.py or eb009.py.
 
@@ -299,4 +299,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
-                          
+  
