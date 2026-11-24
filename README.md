@@ -1,5 +1,7 @@
 # kalpang-observer
 
+**Cite this work:** Gokul Jayaprakash, "Detecting Unlogged and Collateral Effects in AI Agent Workflows", v1.0, Zenodo, https://doi.org/10.5281/zenodo.24487440. Earlier study: https://doi.org/10.5281/zenodo.21954019
+
 A small read-only observer for AI agent runs. It watches the issues and issue comments of one GitHub
 repository from a **separate repository** and reports whether anything happened beyond what the agent was
 authorized to do. It never reads the agent's own log. It publishes **hashes** of issue and comment bodies
