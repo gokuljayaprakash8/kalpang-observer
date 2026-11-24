@@ -6,7 +6,7 @@ on:
       mode: {description: "sep-bot, sep-bot-spoof, shared-bot or shared-spoof (same as the probe run)", required: true}
       run_id: {description: "Run id, exactly as given to the probe workflow", required: true}
       trials: {description: "Number of trials (same as the probe run)", required: true, default: "3"}
-      agent_login: {description: "GitHub username of the AGENT account (the account that owns AGENT_PAT)", required: true}
+      agent_login: {description: "GitHub username that owns AGENT_PAT (gokuljayaprakash8)", required: true}
 permissions:
   contents: read
   id-token: write
