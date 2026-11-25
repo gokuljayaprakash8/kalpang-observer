@@ -24,5 +24,10 @@ The first s-faithful run (suffix c1) did NOT match the prediction: gate REFUSED 
 ## 5. Not yet run
 C2 (protected gate code), C3 (pinned actions), C4 (short-lived credentials), C5 (atomic nonce), s-overbroad-spec, and the cumulative run. Preregistered predictions for them are in EB013-PREREG.md and unchanged.
 
-## 6. Run records
-To be attached: probe and observer run URLs for c2 (s-faithful, s-forge-with-public-key), the key-check run, and the c1 runs; commit hashes of eb013_c1.py, eb013.py and the workflow files.
+## 6. Run records (suffix c2)
+Run URLs supplied by the experimenter in the order s-faithful, then s-forge-with-public-key; run numbers ascend in that order. Run titles were not independently read from the pages.
+| mode | probe run | observer run |
+|---|---|---|
+| s-faithful | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45603430863 | https://github.com/gokuljayaprakash8/kalpang-observer/actions/runs/45603209442 |
+| s-forge-with-public-key | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45604515353 | https://github.com/gokuljayaprakash8/kalpang-observer/actions/runs/45604374498 |
+Still to attach: the key-check run and the c1 runs; commit hashes of eb013_c1.py, eb013.py and the workflow files.
