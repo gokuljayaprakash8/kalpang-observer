@@ -38,7 +38,21 @@ Run date: 25 November 2026. Suffix r2. Predictions: experiments/EB012.md (commit
 ## 3b. What is NOT yet established
 - The g-overbroad-spec gate line was not collected; the observer verdict (DIVERGENT) stands, the gate decision for that mode is unverified here.
 - Gate decisions were read from screenshots of the run logs by the experimenter, not independently reproduced. Independent reproduction is still outstanding.
-- Run identifiers and commit hashes: to be attached (observer run URLs for the 8 r2 runs; probe run URLs; commit hashes of eb012.py, eb012_gate.py, EB012.md, and the workflow files).
+- Run identifiers: see section 3c. Remaining: observer run URLs for the 8 r2 runs, and commit hashes of eb012.py, eb012_gate.py, EB012.md and the workflow files.
+
+## 3c. Probe run records (suffix r2)
+Probe repository: gokuljayaprakash8/kalpang-effect-boundary-probe. Commit of the first two runs, read from the run pages: cec94108e9d7400003c2a868ab6a1c161a4ecbbb. The other six commit hashes are still to be confirmed.
+| mode | run URL | note |
+|---|---|---|
+| g-faithful | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45565727567 | title read from page |
+| g-retarget | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45566176890 | title read from page |
+| g-mutate-body | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45566623337 | mode inferred from run order |
+| g-extra-effect | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45567592150 | mode inferred from run order |
+| g-forged-auth | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45568144192 | mode inferred from run order |
+| g-replay | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45568570914 | mode inferred from run order |
+| g-overbroad-spec | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45569156531 | mode inferred from run order |
+| b-retarget | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45569614616 | mode inferred from run order |
+Mode-to-run mapping for the six runs marked "inferred" follows run-number order and the order the runs were started; confirm against each run title before citing.
 
 ## 4. Trust boundaries and credentials
 | component | credentials held | trust |
