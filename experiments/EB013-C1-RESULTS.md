@@ -36,4 +36,8 @@ Run URLs supplied by the experimenter in the order s-faithful, then s-forge-with
 |---|---|---|
 | s-faithful | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45603430863 | https://github.com/gokuljayaprakash8/kalpang-observer/actions/runs/45603209442 |
 | s-forge-with-public-key | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45604515353 | https://github.com/gokuljayaprakash8/kalpang-observer/actions/runs/45604374498 |
-Baseline (b2) run URLs, the key-check run and the c1 and b1 runs: still to attach; commit hashes of eb013_c1.py, eb013.py and the workflow files.
+Baseline (b2), supplied by the experimenter (titles not independently read):
+| mode | probe run | observer run |
+|---|---|---|
+| base-forge-with-gate-key (b2) | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45609814664 | https://github.com/gokuljayaprakash8/kalpang-observer/actions/runs/45609674162 |
+Still to attach: the key-check run and the c1 and b1 runs; commit hashes of eb013_c1.py, eb013.py and the workflow files.
