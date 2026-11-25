@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # python -I drop
 import eb010  # noqa: E402  (snapshot and time helpers)
 import run_probe as rp  # noqa: E402
 
-MODES = ("s-faithful", "s-forge-with-public-key")
+MODES = ("s-faithful", "s-forge-with-public-key", "base-forge-with-gate-key")
 BODY = "KALPANG-EB013-AUTHORIZED|{rid}|authorized comment"
 RUN_TITLE = "EB013 / %s / %s"
 SLACK = 10
