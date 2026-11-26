@@ -17,7 +17,7 @@ Run date: 25 November 2026. Suffix r2. Predictions: experiments/EB012.md (commit
 8 of 8 observer verdicts matched the preregistered predictions, including the two predicted prevention failures (g-overbroad-spec, b-retarget).
 
 ## 2. What the observer evidence supports (within the stated boundary)
-- In the five modes where a compromised or faithless handler tried to retarget, mutate, add an operation, forge the authorization or replay it, the observer found no unauthorized effect (no_unauthorized_effect=True), and in g-faithful and g-replay exactly the authorized comment was present.
+- In the five modes where a compromised or faithless handler tried to retarget, mutate, add an operation, forge the authorization or replay it, the observer found no unauthorized issue or comment changes (no_unauthorized_effect=True; issues and comments are the only effect classes observed), and in g-faithful and g-replay exactly the authorized comment was present.
 - When the authorization itself was too broad (g-overbroad-spec), an effect the gate was entitled to commit was caught only because the observer's reference is independent of the signed authorization (fixed in observer/eb012.py and EB012.md, derived from the run id). This is a stand-in for an independent intent record, not a real one.
 - When the handler held the write token (b-retarget), the unauthorized effect happened and was detected afterwards: detection, not prevention.
 
@@ -31,12 +31,11 @@ Run date: 25 November 2026. Suffix r2. Predictions: experiments/EB012.md (commit
 | g-forged-auth | REFUSED BAD_SIGNATURE | op=0 REFUSED BAD_SIGNATURE | yes |
 | g-replay | COMMITTED then REFUSED NONCE_INVALID_OR_REPLAYED | op=0 COMMITTED; op=1 REFUSED NONCE_INVALID_OR_REPLAYED | yes |
 | b-retarget | gate not in path | "no operations (bypass mode: the gate is not in the execution path)" | yes |
-| g-overbroad-spec | COMMITTED | not recorded in this file (optional screenshot not collected) | not checked |
+| g-overbroad-spec | COMMITTED | op=0 COMMITTED | yes |
 
-6 of 6 required g-mode gate decisions and the b-retarget line matched the predictions. Combined with the observer verdicts, each refusal mode has both a recorded gate refusal and an observer finding of no unauthorized effect. That supports the statement: within this boundary, the gate refused these four attack classes before the effect, and the independent observer saw no unauthorized effect. The g-replay and g-faithful gate lines were seen in two screenshots of the same r2 runs (the g-replay line appeared twice, identical).
+All 7 g-mode gate decisions (including g-overbroad-spec) and the b-retarget line matched the predictions. Combined with the observer verdicts, each refusal mode has both a recorded gate refusal and an observer finding of no unauthorized effect. That supports the statement: within this boundary, the gate refused these attack classes before the effect, and the observer found no unauthorized issue or comment changes. Independence is claimed at the workflow level only: the probe and observer workflows ran in separate repositories under the same GitHub account on one platform. The g-replay and g-faithful gate lines were seen in two screenshots of the same r2 runs (the g-replay line appeared twice, identical).
 
 ## 3b. What is NOT yet established
-- The g-overbroad-spec gate line was not collected; the observer verdict (DIVERGENT) stands, the gate decision for that mode is unverified here.
 - Gate decisions were read from screenshots of the run logs by the experimenter, not independently reproduced. Independent reproduction is still outstanding.
 - Run identifiers: see section 3c. Remaining: observer run URLs for the 8 r2 runs, and commit hashes of eb012.py, eb012_gate.py, EB012.md and the workflow files.
 
@@ -53,6 +52,24 @@ Probe repository: gokuljayaprakash8/kalpang-effect-boundary-probe. Commit of the
 | g-overbroad-spec | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45569156531 | title confirmed by experimenter |
 | b-retarget | https://github.com/gokuljayaprakash8/kalpang-effect-boundary-probe/actions/runs/45569614616 | title confirmed by experimenter |
 Mode-to-run mapping: runs 1 and 2 read from the run pages; runs 3 to 8 confirmed by the experimenter against each run title.
+
+## 3d. Commits and paired log lines (suffix r2)
+Commit SHAs (from the repositories' commit histories; no commits to either repository touched the experiment files between the code commits and the runs, which were on 25 Nov 2026 after 12:05 IST):
+- Probe repository (kalpang-effect-boundary-probe), HEAD for all r2 runs: cec94108e9d7400003c2a868ab6a1c161a4ecbbb (run workflow). eb012_gate.py: f9530f4ee490a14abd4aace55f8356a70127c334. eb012-setup.yml: 238dd6e9b7ceca0298b256dfff9d45dc72eb2b28. The first two probe run pages (g-faithful, g-retarget) showed cec9410 directly; the other six are inferred from the history.
+- Observer repository (kalpang-observer), HEAD for all r2 runs: 2d9d4084d7072464f991c1ebe76723f7dff4421b (eb012.yml, 12:00:40). eb012.py: 0c7af64ede892aaeb187dfbe8b2543c2f2e95c6a (11:59:29). Preregistration EB012.md: 62a148826accff639e99be281e73cb87f195245c (11:58:27), committed before the runs.
+
+Paired by run id (observer RUN_ID = probe run title suffix):
+| run id | gate line (probe, Gate step) | observer line (Classify step) |
+|---|---|---|
+| g-faithful-r2 | op=0 COMMITTED | verdict=IN-BOUNDS agent_comments=1 conforming=1 no_unauthorized_effect=True |
+| g-retarget-r2 | op=0 REFUSED TARGET_NOT_AUTHORIZED | verdict=NO OBSERVED EFFECT agent_comments=0 conforming=0 no_unauthorized_effect=True |
+| g-mutate-body-r2 | op=0 REFUSED BODY_HASH_MISMATCH | verdict=NO OBSERVED EFFECT agent_comments=0 conforming=0 no_unauthorized_effect=True |
+| g-extra-effect-r2 | op=0 and op=1 REFUSED OPERATION_COUNT_NOT_AUTHORIZED | verdict=NO OBSERVED EFFECT agent_comments=0 conforming=0 no_unauthorized_effect=True |
+| g-forged-auth-r2 | op=0 REFUSED BAD_SIGNATURE | verdict=NO OBSERVED EFFECT agent_comments=0 conforming=0 no_unauthorized_effect=True |
+| g-replay-r2 | op=0 COMMITTED; op=1 REFUSED NONCE_INVALID_OR_REPLAYED | verdict=IN-BOUNDS agent_comments=1 conforming=1 no_unauthorized_effect=True |
+| g-overbroad-spec-r2 | op=0 COMMITTED | verdict=DIVERGENT (COMMITTED_EFFECT_OUTSIDE_AUTHORIZED_SPEC) agent_comments=1 conforming=0 no_unauthorized_effect=False |
+| b-retarget-r2 | "no operations (bypass mode: the gate is not in the execution path)" | verdict=DIVERGENT (same reason) agent_comments=1 conforming=0 no_unauthorized_effect=False |
+The g-overbroad-spec gate line was collected on 26 Nov 2026 from run 45569156531 (job gate, step Gate; MODE g-overbroad-spec, SUFFIX r2 shown in the log). It records COMMITTED, which is consistent with the observer verdict DIVERGENT: the gate committed an effect its (too broad) authorization allowed, and only the observer's independent reference caught it.
 
 ## 4. Trust boundaries and credentials
 | component | credentials held | trust |
